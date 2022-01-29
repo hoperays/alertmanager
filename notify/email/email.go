@@ -89,7 +89,6 @@ func (n *Email) auth(mechs string) (smtp.Auth, error) {
 				continue
 			}
 			return smtp.CRAMMD5Auth(username, secret), nil
-
 		case "PLAIN":
 			password, passwordErr := n.getPassword()
 			if passwordErr != nil {
@@ -101,8 +100,7 @@ func (n *Email) auth(mechs string) (smtp.Auth, error) {
 				continue
 			}
 			identity := n.conf.AuthIdentity
-
-			return smtp.PlainAuth(identity, username, password, n.conf.Smarthost.Host), nil
+			return PlainAuth(identity, username, password, n.conf.Smarthost.Host), nil
 		case "LOGIN":
 			password, passwordErr := n.getPassword()
 			if passwordErr != nil {
@@ -371,4 +369,31 @@ func (n *Email) getPassword() (string, error) {
 		return string(content), nil
 	}
 	return string(n.conf.AuthPassword), nil
+}
+
+type plainAuth struct {
+	identity, username, password string
+	host                         string
+}
+
+func PlainAuth(identity, username, password, host string) smtp.Auth {
+	return &plainAuth{identity, username, password, host}
+}
+
+func (a *plainAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	// Rewrite the method of smtp.PlainAuth.Start to allow
+	// unencrypted connections to remote SMTP endpoints.
+	if server.Name != a.host {
+		return "", nil, errors.New("wrong host name")
+	}
+	resp := []byte(a.identity + "\x00" + a.username + "\x00" + a.password)
+	return "PLAIN", resp, nil
+}
+
+func (a *plainAuth) Next(fromServer []byte, more bool) ([]byte, error) {
+	if more {
+		// We've already sent everything.
+		return nil, errors.New("unexpected server challenge")
+	}
+	return nil, nil
 }
