@@ -255,6 +255,9 @@ func resolveFilepaths(baseDir string, cfg *Config) {
 			cfg.HTTPConfig.SetDirectory(baseDir)
 		}
 
+		for _, cfg := range receiver.DingTalkRobotConfigs {
+			cfg.HTTPConfig.SetDirectory(baseDir)
+		}
 		for _, cfg := range receiver.FeishuBotConfigs {
 			cfg.HTTPConfig.SetDirectory(baseDir)
 		}
@@ -533,6 +536,11 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			}
 		}
 
+		for _, dingtalkrobot := range rcv.DingTalkRobotConfigs {
+			if dingtalkrobot.HTTPConfig == nil {
+				dingtalkrobot.HTTPConfig = c.Global.HTTPConfig
+			}
+		}
 		for _, feishubot := range rcv.FeishuBotConfigs {
 			if feishubot.HTTPConfig == nil {
 				feishubot.HTTPConfig = c.Global.HTTPConfig
@@ -907,7 +915,8 @@ type Receiver struct {
 	TelegramConfigs  []*TelegramConfig  `yaml:"telegram_configs,omitempty" json:"telegram_configs,omitempty"`
 	WebexConfigs     []*WebexConfig     `yaml:"webex_configs,omitempty" json:"webex_configs,omitempty"`
 
-	FeishuBotConfigs []*FeishuBotConfig `yaml:"feishubot_configs,omitempty" json:"feishubot_configs,omitempty"`
+	DingTalkRobotConfigs []*DingTalkRobotConfig `yaml:"dingtalkrobot_configs,omitempty" json:"dingtalkrobot_configs,omitempty"`
+	FeishuBotConfigs     []*FeishuBotConfig     `yaml:"feishubot_configs,omitempty" json:"feishubot_configs,omitempty"`
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface for Receiver.
