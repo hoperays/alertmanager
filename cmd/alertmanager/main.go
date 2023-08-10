@@ -51,6 +51,7 @@ import (
 	"github.com/prometheus/alertmanager/notify"
 	"github.com/prometheus/alertmanager/notify/discord"
 	"github.com/prometheus/alertmanager/notify/email"
+	"github.com/prometheus/alertmanager/notify/feishubot"
 	"github.com/prometheus/alertmanager/notify/opsgenie"
 	"github.com/prometheus/alertmanager/notify/pagerduty"
 	"github.com/prometheus/alertmanager/notify/pushover"
@@ -180,6 +181,10 @@ func buildReceiverIntegrations(nc *config.Receiver, tmpl *template.Template, log
 	}
 	for i, c := range nc.WebexConfigs {
 		add("webex", i, c, func(l log.Logger) (notify.Notifier, error) { return webex.New(c, tmpl, l) })
+	}
+
+	for i, c := range nc.FeishuBotConfigs {
+		add("feishubot", i, c, func(l log.Logger) (notify.Notifier, error) { return feishubot.New(c, tmpl, l) })
 	}
 
 	if errs.Len() > 0 {

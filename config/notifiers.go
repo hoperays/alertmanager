@@ -164,6 +164,15 @@ var (
 		Message:              `{{ template "telegram.default.message" . }}`,
 		ParseMode:            "HTML",
 	}
+
+	// DefaultFeishuBotConfig defines default values for Feishu bot configurations.
+	DefaultFeishuBotConfig = FeishuBotConfig{
+		NotifierConfig: NotifierConfig{
+			VSendResolved: false,
+		},
+		MaxMessageSize: 4096,
+		Message:        `{{ template "feishubot.default.message" . }}`,
+	}
 )
 
 // NotifierConfig contains base options common across all notifier configurations.
@@ -756,5 +765,43 @@ func (c *TelegramConfig) UnmarshalYAML(unmarshal func(interface{}) error) error 
 		c.ParseMode != "HTML" {
 		return fmt.Errorf("unknown parse_mode on telegram_config, must be Markdown, MarkdownV2, HTML or empty string")
 	}
+	return nil
+}
+
+// FeishuBotConfig configures notifications via Feishu bot.
+type FeishuBotConfig struct {
+	NotifierConfig `yaml:",inline" json:",inline"`
+
+	HTTPConfig *commoncfg.HTTPClientConfig `yaml:"http_config,omitempty" json:"http_config,omitempty"`
+
+	// The webhook URL of robot which the message will be sent.
+	WebhookURL *SecretURL `yaml:"webhook_url" json:"webhook_url"`
+	// Custom keywords for robot security authentication.
+	Keywords []string `yaml:"keywords,omitempty" json:"keywords,omitempty"`
+	// Secret of additional signature for robot security authentication.
+	Secret Secret `yaml:"secret,omitempty" json:"secret,omitempty"`
+	// Template to generate the message content of the robot notification.
+	Message string `yaml:"message,omitempty" json:"message,omitempty"`
+	// The maximum message length supported by the robot notification, unit: byte.
+	// And the excess part will be truncated.
+	MaxMessageSize int `yaml:"max_message_size,omitempty" json:"max_message_size,omitempty"`
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (c *FeishuBotConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	*c = DefaultFeishuBotConfig
+	type plain FeishuBotConfig
+	if err := unmarshal((*plain)(c)); err != nil {
+		return err
+	}
+
+	if c.WebhookURL == nil || c.WebhookURL.String() == "" {
+		return fmt.Errorf("missing webhook_url in feishubot_config")
+	}
+
+	if c.MaxMessageSize < 1024 {
+		return fmt.Errorf("max_message_size in feishubot_config should not be less than 1024")
+	}
+
 	return nil
 }
