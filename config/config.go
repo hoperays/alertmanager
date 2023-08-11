@@ -254,6 +254,10 @@ func resolveFilepaths(baseDir string, cfg *Config) {
 		for _, cfg := range receiver.WebexConfigs {
 			cfg.HTTPConfig.SetDirectory(baseDir)
 		}
+
+		for _, cfg := range receiver.WeComRobotConfigs {
+			cfg.HTTPConfig.SetDirectory(baseDir)
+		}
 	}
 }
 
@@ -526,6 +530,12 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 				}
 
 				webex.APIURL = c.Global.WebexAPIURL
+			}
+		}
+
+		for _, wecomrobot := range rcv.WeComRobotConfigs {
+			if wecomrobot.HTTPConfig == nil {
+				wecomrobot.HTTPConfig = c.Global.HTTPConfig
 			}
 		}
 
@@ -896,6 +906,8 @@ type Receiver struct {
 	SNSConfigs       []*SNSConfig       `yaml:"sns_configs,omitempty" json:"sns_configs,omitempty"`
 	TelegramConfigs  []*TelegramConfig  `yaml:"telegram_configs,omitempty" json:"telegram_configs,omitempty"`
 	WebexConfigs     []*WebexConfig     `yaml:"webex_configs,omitempty" json:"webex_configs,omitempty"`
+
+	WeComRobotConfigs []*WeComRobotConfig `yaml:"wecomrobot_configs,omitempty" json:"wecomrobot_configs,omitempty"`
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface for Receiver.
