@@ -63,6 +63,7 @@ import (
 	"github.com/prometheus/alertmanager/notify/webex"
 	"github.com/prometheus/alertmanager/notify/webhook"
 	"github.com/prometheus/alertmanager/notify/wechat"
+	"github.com/prometheus/alertmanager/notify/wecomrobot"
 	"github.com/prometheus/alertmanager/provider/mem"
 	"github.com/prometheus/alertmanager/silence"
 	"github.com/prometheus/alertmanager/template"
@@ -184,6 +185,9 @@ func buildReceiverIntegrations(nc *config.Receiver, tmpl *template.Template, log
 		add("webex", i, c, func(l log.Logger) (notify.Notifier, error) { return webex.New(c, tmpl, l) })
 	}
 
+	for i, c := range nc.WeComRobotConfigs {
+		add("wecomrobot", i, c, func(l log.Logger) (notify.Notifier, error) { return wecomrobot.New(c, tmpl, l) })
+	}
 	for i, c := range nc.DingTalkRobotConfigs {
 		add("dingtalkrobot", i, c, func(l log.Logger) (notify.Notifier, error) { return dingtalkrobot.New(c, tmpl, l) })
 	}

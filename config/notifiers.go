@@ -165,6 +165,15 @@ var (
 		ParseMode:            "HTML",
 	}
 
+	// DefaultWeComRobotConfig defines default values for WeCom robot configurations.
+	DefaultWeComRobotConfig = WeComRobotConfig{
+		NotifierConfig: NotifierConfig{
+			VSendResolved: false,
+		},
+		MaxMessageSize: 4096,
+		Message:        `{{ template "wecomrobot.default.message" . }}`,
+	}
+
 	// DefaultDingTalkRobotConfig defines default values for DingTalk robot configurations.
 	DefaultDingTalkRobotConfig = DingTalkRobotConfig{
 		NotifierConfig: NotifierConfig{
@@ -774,6 +783,40 @@ func (c *TelegramConfig) UnmarshalYAML(unmarshal func(interface{}) error) error 
 		c.ParseMode != "HTML" {
 		return fmt.Errorf("unknown parse_mode on telegram_config, must be Markdown, MarkdownV2, HTML or empty string")
 	}
+	return nil
+}
+
+// WeComRobotConfig configures notifications via WeCom robot.
+type WeComRobotConfig struct {
+	NotifierConfig `yaml:",inline" json:",inline"`
+
+	HTTPConfig *commoncfg.HTTPClientConfig `yaml:"http_config,omitempty" json:"http_config,omitempty"`
+
+	// The webhook URL of robot which the message will be sent.
+	WebhookURL *SecretURL `yaml:"webhook_url" json:"webhook_url"`
+	// Template to generate the message content of the robot notification.
+	Message string `yaml:"message,omitempty" json:"message,omitempty"`
+	// The maximum message length supported by the robot notification, unit: byte.
+	// And the excess part will be truncated.
+	MaxMessageSize int `yaml:"max_message_size,omitempty" json:"max_message_size,omitempty"`
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (c *WeComRobotConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	*c = DefaultWeComRobotConfig
+	type plain WeComRobotConfig
+	if err := unmarshal((*plain)(c)); err != nil {
+		return err
+	}
+
+	if c.WebhookURL == nil || c.WebhookURL.String() == "" {
+		return fmt.Errorf("missing webhook_url in wecomrobot_config")
+	}
+
+	if c.MaxMessageSize < 1024 {
+		return fmt.Errorf("max_message_size in wecomrobot_config should not be less than 1024")
+	}
+
 	return nil
 }
 
