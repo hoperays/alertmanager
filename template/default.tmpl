@@ -217,3 +217,7 @@ Alerts Resolved:
 {{ define "rocketchat.default.emoji" }}{{ end }}
 {{ define "rocketchat.default.iconurl" }}{{ end }}
 {{ define "rocketchat.default.text" }}{{ end }}
+
+{{ define "wecomrobot.default.message" }}{{ template "wechat.default.message" . }}{{ end }}
+{{ define "dingtalkrobot.default.message" }}{{ template "wechat.default.message" . }}{{ end }}
+{{ define "feishubot.default.message" }}{{ template "wechat.default.message" . }}{{ end }}

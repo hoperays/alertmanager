@@ -21,8 +21,10 @@ import (
 
 	"github.com/prometheus/alertmanager/config"
 	"github.com/prometheus/alertmanager/notify"
+	"github.com/prometheus/alertmanager/notify/dingtalkrobot"
 	"github.com/prometheus/alertmanager/notify/discord"
 	"github.com/prometheus/alertmanager/notify/email"
+	"github.com/prometheus/alertmanager/notify/feishubot"
 	"github.com/prometheus/alertmanager/notify/jira"
 	"github.com/prometheus/alertmanager/notify/msteams"
 	"github.com/prometheus/alertmanager/notify/msteamsv2"
@@ -37,6 +39,7 @@ import (
 	"github.com/prometheus/alertmanager/notify/webex"
 	"github.com/prometheus/alertmanager/notify/webhook"
 	"github.com/prometheus/alertmanager/notify/wechat"
+	"github.com/prometheus/alertmanager/notify/wecomrobot"
 	"github.com/prometheus/alertmanager/template"
 	"github.com/prometheus/alertmanager/types"
 )
@@ -108,6 +111,16 @@ func BuildReceiverIntegrations(nc config.Receiver, tmpl *template.Template, logg
 	}
 	for i, c := range nc.RocketchatConfigs {
 		add("rocketchat", i, c, func(l *slog.Logger) (notify.Notifier, error) { return rocketchat.New(c, tmpl, l, httpOpts...) })
+	}
+
+	for i, c := range nc.WeComRobotConfigs {
+		add("wecomrobot", i, c, func(l *slog.Logger) (notify.Notifier, error) { return wecomrobot.New(c, tmpl, l, httpOpts...) })
+	}
+	for i, c := range nc.DingTalkRobotConfigs {
+		add("dingtalkrobot", i, c, func(l *slog.Logger) (notify.Notifier, error) { return dingtalkrobot.New(c, tmpl, l, httpOpts...) })
+	}
+	for i, c := range nc.FeishuBotConfigs {
+		add("feishubot", i, c, func(l *slog.Logger) (notify.Notifier, error) { return feishubot.New(c, tmpl, l, httpOpts...) })
 	}
 
 	if errs.Len() > 0 {
