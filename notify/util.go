@@ -120,6 +120,12 @@ func TruncateInBytes(s string, n int) (string, bool) {
 	r := []rune(s)
 	truncationTarget := n - 3
 
+	// Notes: if truncationTarget is greater than the capacity of r,
+	// it will raise error that slice bounds out of range.
+	if truncationTarget > cap(r) {
+		truncationTarget = cap(r)
+	}
+
 	// Next, let's truncate the runes to the lower possible number.
 	truncatedRunes := r[:truncationTarget]
 	for len(string(truncatedRunes)) > truncationTarget {
