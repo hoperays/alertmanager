@@ -809,7 +809,7 @@ func (c *WeComRobotConfig) UnmarshalYAML(unmarshal func(interface{}) error) erro
 		return err
 	}
 
-	if c.WebhookURL == nil || c.WebhookURL.String() == "" {
+	if c.WebhookURL == nil {
 		return fmt.Errorf("missing webhook_url in wecomrobot_config")
 	}
 
@@ -847,7 +847,7 @@ func (c *DingTalkRobotConfig) UnmarshalYAML(unmarshal func(interface{}) error) e
 		return err
 	}
 
-	if c.WebhookURL == nil || c.WebhookURL.String() == "" {
+	if c.WebhookURL == nil {
 		return fmt.Errorf("missing webhook_url in dingtalkrobot_config")
 	}
 
@@ -885,7 +885,7 @@ func (c *FeishuBotConfig) UnmarshalYAML(unmarshal func(interface{}) error) error
 		return err
 	}
 
-	if c.WebhookURL == nil || c.WebhookURL.String() == "" {
+	if c.WebhookURL == nil {
 		return fmt.Errorf("missing webhook_url in feishubot_config")
 	}
 
