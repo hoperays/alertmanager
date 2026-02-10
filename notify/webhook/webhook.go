@@ -75,10 +75,23 @@ func truncateAlerts(maxAlerts uint64, alerts []*types.Alert) ([]*types.Alert, ui
 	return alerts, 0
 }
 
+// Set alert times to UTC.
+func toUTC(alerts []*types.Alert) []*types.Alert {
+	utcAlerts := make([]*types.Alert, 0, len(alerts))
+	for _, a := range alerts {
+		alert := *a
+		alert.StartsAt = a.StartsAt.UTC()
+		alert.EndsAt = a.EndsAt.UTC()
+		utcAlerts = append(utcAlerts, &alert)
+	}
+
+	return utcAlerts
+}
+
 // Notify implements the Notifier interface.
 func (n *Notifier) Notify(ctx context.Context, alerts ...*types.Alert) (bool, error) {
 	alerts, numTruncated := truncateAlerts(n.conf.MaxAlerts, alerts)
-	data := notify.GetTemplateData(ctx, n.tmpl, alerts, n.logger)
+	data := notify.GetTemplateData(ctx, n.tmpl, toUTC(alerts), n.logger)
 
 	groupKey, err := notify.ExtractGroupKey(ctx)
 	if err != nil {
